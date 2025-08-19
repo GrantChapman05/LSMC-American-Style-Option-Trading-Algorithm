@@ -82,7 +82,14 @@ def tradeDecision(modelPrice, marketPrice, thresh):
     return "Hold"
 
 #calls paper_trader.py, calls the log and export function, update posns and adjust cash
-def execTrade():
+def execTrade(signal, smbl, exp, strk, optn_typ, qty, mdl_prc, portf_state, slippage_bps, fees_p_contr) -> dict : #Creating dictionary t 
+    ts = pd.Timestamp.now(tz="America/Toronto")
+    side = signal.upper()
+
+    if side == "HOLD":
+        return {"status": "Skipped", "Reason": "No Trade Signal", "side": side, "symbol": smbl, "expiry": exp, "Stirke": float(strk),
+               "Option_type": optn_typ.lower(), "Quantity": int(qty), "Model Price": float(mdl_prc), "mark_price": np.NaN, "Fill price": np.Nan,
+               "Slippage_bps": slippage_bps, }
     return
 
 #Save all trade data, activity and results
@@ -93,4 +100,5 @@ def logAndExport():
 def main():
     price = priceOptnLSMC()
     print(f"LSMC model price: {price:4f}")
+
     return
