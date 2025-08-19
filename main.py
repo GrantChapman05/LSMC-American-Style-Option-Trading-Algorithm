@@ -87,10 +87,53 @@ def execTrade(signal, smbl, exp, strk, optn_typ, qty, mdl_prc, portf_state, slip
     side = signal.upper()
 
     if side == "HOLD":
+        #DETERMINE RETURN VALUES
         return {"status": "Skipped", "Reason": "No Trade Signal", "side": side, "symbol": smbl, "expiry": exp, "Stirke": float(strk),
                "Option_type": optn_typ.lower(), "Quantity": int(qty), "Model Price": float(mdl_prc), "mark_price": np.NaN, "Fill price": np.Nan,
                "Slippage_bps": slippage_bps, }
-    return
+    if qty <= 0:
+        return{"Status": "REJECTED", "Reason": "qty must be > 0"}
+    if "cash" not in portf_state or "positions" not in portf_state:
+        return {"Status": "REJECTED", "Reason": "portfolio state missing 'cash'/'positions'"}
+
+    key = (smbl, exp, float(strike), optn_typ.lower())
+    pos_before = portf_state["Positions"].get(key, {"qty": 0, "avg_price": 0.0})
+    qty_before = int(pos_before["qty"])
+    avg_before = float(pos_before["avg_price"])
+    cash_before = float(portf_state["cash"])
+
+    row, mark = _get_option_mark(smbl, expy, strk, optn_typ)
+    if row is None or not np.isfinite(mark) or mark<=0:
+        return {"Status": "REJECTED", "Reason": "No valid market quote for contract"}
+
+    edge = (float(model_price) - mark) / mark
+
+    if side == "BUY":
+        provis_fill = mark*((1.0 + slippage_bps) / 10000.0)
+    elif side=="SELL":
+        provis_fill = mark*((1.0 - slippage_bps) / 10000.0)
+    else:
+        return {"Status": "REJECTED", "Reason": f"Unknown side: {side}"}
+
+    fill_price = _round_to_tick(provis_fill, tick=0.01)
+    fees = float(fees_per_contract) * int(qty)
+    gross = fill_price*int(qty)*100.0
+
+    if side == "SELL" and qty > qty_before:
+        return {"Status": "REJECTED", "Reason": "No shorting allowed; insufficient long qty"}
+    if side == "BUY" and cash_before < (gross + fees):
+        return {"Status": "REJECTED", "Reason": "Insufficient budge for buy+fees"}
+
+    if side=="BUY":
+        new_qty = qty_before+qty
+        new_avg = (((avg_before+qty_before*100.0)+(fill_price*qty*100.0))/(new_qty*100.0))
+        cash_after = cash_before - gross - fees
+        portf_state["positions"][key] = {"qty": new_qty, "avg_price": float(new_avg)}
+        portf_state["cash"] = float(cash_after)
+    else:
+        new_qty = 
+
+#CONTINUE HERE
 
 #Save all trade data, activity and results
 def logAndExport():
@@ -102,3 +145,4 @@ def main():
     print(f"LSMC model price: {price:4f}")
 
     return
+
