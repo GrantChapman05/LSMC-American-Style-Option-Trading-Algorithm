@@ -27,7 +27,7 @@ def loadconfig(smbl, start_date, end_date):
         'expirations':marketData['expirations']
     }
 
-#Fetches 
+#Fetches from yahoo finance
 def fetchMarketData(smbl):
     ticker = yf.Ticker(smbl)
     
@@ -46,7 +46,7 @@ def fetchMarketData(smbl):
 #core of strat
 def priceOptnLSMC():
     #import functions for LSMC calcs and 
-    from config import tickers, start_date, end_date, T, strike_type, strike_pct, M, I, r
+    from config import tickers, start_date, end_date, T, strike_pct, M, I, r
     
     config = loadconfig(tickers[0], start_date, end_date)
     spotPrice = config['spotPrice']
@@ -55,16 +55,9 @@ def priceOptnLSMC():
     #compute historical volatility
     log_returns = np.log(prices['Adj Close'] / prices['Adj Close'].shift(1)).dropna() #Gets rid of NaN used
     hist_sigma = log_returns.std() * np.sqrt(252) #num of trad days in a year for annualized amnt
-    
-    #find whether strike choice was at/in/on the money
-    if strike_type == "ATM":
-        strike = spotPrice
-    elif strike_type == "OTM":
-        strike = spotPrice * (1 + float(strike_pct))
-    elif strike_type == "ITM":
-        strike = spotPrice * (1 - float(strike_pct))
-    else: 
-        strike = spotPrice
+
+    #add strike price
+    strike = spotPrice*(1+float(strike_pct))
     
     #call for price paths and calculating the option
     paths = lsmc_engine.genPricePaths(hist_sigma, spotPrice, r, M, I)
@@ -75,20 +68,22 @@ def priceOptnLSMC():
 #check if should buy or sell the option
 def tradeDecision(modelPrice, marketPrice, thresh):
     edge = (modelPrice - marketPrice) / marketPrice
-    
+
+    #Creating a sort of stop loss with the negative thresh
     if edge > thresh:
-        return "Buy"
+        return "BUY"
     elif edge < -thresh:
-        return "Sell"
-    return "Hold"
+        return "SELL"
+    return "HOLD"
 
 #calls paper_trader.py, calls the log and export function, update posns and adjust cash
-def execTrade(signal, smbl, exp, strk, optn_typ, qty, mdl_prc, portf_state, slippage_bps, fees_p_contr) -> dict : #Creating dictionary t
-    paper_trader.
+def execTrade():
+    dec =  tradeDecision() #Get model price from LSMC call to priceOptnLSMC
 
-#Save all trade data, activity and results
-def logAndExport():
-    return 
+    if dec == "BUY" or dec == "SELL" or dec == "EXERCISE":
+        paper_trader.startTrade()
+    else: 
+        return
 
 #makes script executable and testable
 def main():
@@ -96,5 +91,3 @@ def main():
     print(f"LSMC model price: {price:4f}")
 
     return
-
-
