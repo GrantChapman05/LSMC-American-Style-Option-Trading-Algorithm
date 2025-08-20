@@ -1,5 +1,5 @@
 #Constructor
-#initialize paper trader w cash
+#initialize paper trader w/ cash
 def __init__():
     return
 
@@ -11,7 +11,7 @@ def buyOptn():
 def sellOptn():
     return
 
-#Simulation of exercising the option early
+#Called from Main file and determines what the trade is
 def exerciseOptn():
     return
 
