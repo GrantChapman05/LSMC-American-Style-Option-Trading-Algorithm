@@ -13,4 +13,24 @@ Features:
 Project Structure:
 
 Installation:
-If you'd like to run my code on your on machine you may, below are the steps to do so
+  feel free to download my code and run it on your own system :)
+
+Example Output:
+  My output are all logged in the excel file linked tot he project
+
+Future extensions:
+  Add put option support
+  MUlti-asset option pricing (basket or spreads)
+
+references:
+  [1] QuantPy, Monte Carlo Simulation for Option Pricing with Python (Basic Ideas Explained). YouTube, Apr. 19,   2020. [Online]. Available: https://www.youtube.com/watch?v=pR32aii3shk
+Accessed: Aug. 6, 2025.  
+
+  [2] QuantPy, Valuing American Options Using Monte Carlo Simulation (intro to LSMC). YouTube, May 24, 2020. [Online]. Available: https://www.youtube.com/watch?v=rW9FdbirZzQ
+Accessed: Aug. 7, 2025.
+
+  [3] Technische Universität Berlin, Lecture Computational Finance / Numerical Methods 24 (American Monte-Carlo, Bermudan options). YouTube, Jul. 1, 2014. [Online]. Available: https://www.youtube.com/watch?v=Q4vfoDUkTsM
+Accessed: Aug. 10, 2025.
+
+  [4] Algorithmic Differentiation in Finance, Applying AAD to American Monte Carlo Option Pricing. YouTube, Dec. 17, 2019. [Online]. Available: https://www.youtube.com/watch?v=8mUlhkZ6FG0
+Accessed: Aug. 20, 2025.
