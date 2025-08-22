@@ -17,7 +17,7 @@ def __init__(self):
     self.currCash = self.startCash + self.realized_PNL
 
 #Simulate the buying of an option
-def buyOptn(self, optnID, strk_price, qty, prem_paid, optn_type, exp_date, underlying_price, timestamp):
+def buyOptn(self, optnID, strk_price, qty, prem_paid, optn_typ, exp_date, underlying_price, timestamp):
     total_cost = prem_paid * qty
 
     #current cash amount to be less the price paid
@@ -34,10 +34,27 @@ def buyOptn(self, optnID, strk_price, qty, prem_paid, optn_type, exp_date, under
         self.positions[optnID]['prem_paid'] = new_avg_prem
     else:
         #make new and add givens
-        self.positions[optnID] = {'strk_price' = strk_price, 'prem_paid' = prem_paid, 'qty' = qty, 'exp_date' = exp_date, 'optn_typ' = optn_typ, 'underlying_price' = underlying_price}
+        self.positions[optnID] = {
+            'strk_price' = strk_price,
+            'prem_paid' = prem_paid,
+            'qty' = qty,
+            'exp_date' = exp_date,
+            'optn_typ' = optn_typ,
+            'underlying_price' = underlying_price
+        }
 
     #log trade
-    self.logTrade('trad_typ' = "BUY", 'total_cost' = total_cost, 'strk_price' = strk_price, 'prem_paid' = prem_paid, 'qty' = qty, 'exp_date' = exp_date, 'optn_typ' = optn_typ, 'underlying_price' = underlying_price, 'timestamp' = timestamp)
+    self.logTrade(
+        trad_typ = "BUY",
+        total_cost = total_cost,
+        strk_price = strk_price,
+        prem_paid = prem_paid,
+        qty = qty,
+        exp_date = exp_date,
+        optn_typ = optn_typ,
+        underlying_price = underlying_price,
+        timestamp = timestamp
+    )
 
 #Simulate a preowned option being sold, must be owned
 def sellOptn(self, optnID, price, qty, timestamp, underlying_price=None):
@@ -54,7 +71,7 @@ def sellOptn(self, optnID, price, qty, timestamp, underlying_price=None):
     #Update cash and realized PnL
     self.currCash += total_proceeds
     
-    realized_pnl = (price - avg_buy_price) * quantity
+    realized_pnl = (price - avg_buy_price) * qty
     self.realized_PNL += realized_pnl
 
 
@@ -65,13 +82,13 @@ def sellOptn(self, optnID, price, qty, timestamp, underlying_price=None):
 
     #log the trade
     self.logTrade(
-        trade_type='sell',
+        trad_typ='SELL',
         optnID=optnID,
         strk_price=self.positions.get(optnID, {}).get('strk_price', 'N/A'),
         prem_paid=price,
         qty=qty,
-        expiry_date=self.positions.get(optnID, {}).get('exp_date', 'N/A'),
-        option_type=self.positions.get(optnID, {}).get('option_type', 'N/A'),
+        exp_date=self.positions.get(optnID, {}).get('exp_date', 'N/A'),
+        optn_typ=self.positions.get(optnID, {}).get('optn_typ', 'N/A'),
         underlying_price=underlying_price,
         total_cost=-total_proceeds,  #negative because it's a sale
         timestamp=timestamp
@@ -90,8 +107,6 @@ def exerciseOptn(self, optnID, underlying_price, timestamp):
     #Calc curr payoff
     if optn_type.lower() == 'call':
         payoff_per_contract = max(0, underlying_price - strike)
-    elif optn_type.lower() == 'put':
-        payoff_per_contract = max(0, strike - underlying_price)
     else:
         return f"Error: Unknown option type '{optn_type}' for {optnID}."
 
@@ -129,7 +144,7 @@ def calcPNL(self, current_prices):
             qty = position['qty']
 
             #Unrealized PnL = (market - buy) * qty
-            unrealized_pnl += (market_price - avg_buy_price) * qty
+            unrealized_pnl += (mrkt_price - avg_buy_price) * qty
 
     total_pnl = self.realized_PNL + unrealized_pnl
     self.unrealized_PNL = unrealized_pnl
@@ -176,10 +191,10 @@ def logTrade(self, trad_typ, optnID, strk_price, prem_paid, qty, exp_date, optn_
         else: 
             updated_df = pd.DataFrame([trade_entry])
         with pd.ExcelWriter(file_name, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
-            updated_df.to_excel(writer, sheet_name=sheet_name, index=False
+            updated_df.to_excel(writer, sheet_name=sheet_name, index=False)
 
     else:
-        with ExcelWriter(file_name, engine='openpyxl') as writer:
+        with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
             pd.DataFrame([trade_entry]).to_excel(writer, sheet_name=sheet_name, index=False)
 
 #Just to get portfolio information, might delete later
@@ -207,4 +222,3 @@ def reset(self, current_prices, timestamp=None):
 
     #Clear unrealized PnL since all positions are sold
     self.unrealized_PNL = 0
-
