@@ -5,10 +5,20 @@ import numpy as np
 import pandas as pd
 import lsmc_engine
 import paper_trader
+import time
+import datetime from datetime
 
 #Find a way to make loopable through the day
-
-
+def timeCheck(self):
+    while True:
+        now = datetime.now()
+        if now.weekday() < 5 and now.hour >= 9 and now.hour < 16:
+            #Run the main function
+            main()
+            #Check every minute
+            time.sleep(60)
+        else:
+            time.sleep(60)
 #reads ticker symbol from a .env and calls to fetch market data
 def loadconfig(smbl, start_date, end_date):
     load_dotenv()
@@ -91,3 +101,4 @@ def main():
     print(f"LSMC model price: {price:4f}")
 
     return
+
