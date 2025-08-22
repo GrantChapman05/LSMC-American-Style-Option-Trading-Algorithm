@@ -35,12 +35,12 @@ def buyOptn(self, optnID, strk_price, qty, prem_paid, optn_typ, exp_date, underl
     else:
         #make new and add givens
         self.positions[optnID] = {
-            'strk_price' = strk_price,
-            'prem_paid' = prem_paid,
-            'qty' = qty,
-            'exp_date' = exp_date,
-            'optn_typ' = optn_typ,
-            'underlying_price' = underlying_price
+            'strk_price': strk_price,
+            'prem_paid': prem_paid,
+            'qty': qty,
+            'exp_date': exp_date,
+            'optn_typ': optn_typ,
+            'underlying_price': underlying_price
         }
 
     #log trade
@@ -222,3 +222,4 @@ def reset(self, current_prices, timestamp=None):
 
     #Clear unrealized PnL since all positions are sold
     self.unrealized_PNL = 0
+
