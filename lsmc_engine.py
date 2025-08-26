@@ -46,15 +46,15 @@ def calcOptnPrice(paths, K, r, T, optionType="Call"):
     M = M_plus_1 - 1
     dt = T / M
 
-    # Defaults: exercise at maturity
+    #default is to exercise at maturity
     cashflows = np.zeros(I)
     exerciseTimes = np.full(I, M, dtype=int)
 
-    # Payoff at maturity
+    #payoff at maturity
     final_payoff = payoffCalc(paths[:, -1], K, optionType)
     cashflows[:] = final_payoff
 
-    # Backward induction
+    #backward induction
     for t in range(M - 1, 0, -1):
         S_t = paths[:, t]
         immediate = payoffCalc(S_t, K, optionType)
@@ -64,20 +64,20 @@ def calcOptnPrice(paths, K, r, T, optionType="Call"):
         if itemIndex.size == 0:
             continue
 
-        # Discount each path's current "plan" (cashflow at its exercise time) to time t
+        #discount each path's current "plan" (cashflow at its exercise time) to time t
         fv_at_t = discountCashFlow(cashflows[itemIndex], r, dt, exerciseTimes[itemIndex], t)
 
-        # Regress continuation on ITM set
+        #regress continuation on ITM set
         cont_vals, _ = fitRegression(S_t[itemIndex], fv_at_t)
 
-        # Decide where to exercise now
+        #decide where to exercise now
         ex_now_mask = detExercise(immediate[itemIndex], cont_vals)
         ex_now_idx = itemIndex[ex_now_mask]
 
-        # Update those paths: lock in immediate payoff and stamp time
+        #update those paths: lock in immediate payoff and stamp time
         cashflows[ex_now_idx] = immediate[ex_now_idx]
         exerciseTimes[ex_now_idx] = t
 
-    # Discount all realized cashflows to time 0 and average
+    #discount all realized cashflows to time 0 and average
     pv = discountCashFlow(cashflows, r, dt, from_time_idx=exerciseTimes, to_time_idx=0)
     return float(np.mean(pv))
