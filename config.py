@@ -11,9 +11,11 @@ end_date = os.getenv("END_DATE")
 T = float(os.getenv("MATURITY_YEARS"))
 strike_type = os.getenv("STRIKE_TYPE")
 strike_pct = float(os.getenv("STRIKE_PERCENT"))
+thresh = float(os.getenv("THRESHOLD"))
 
 M = int(os.getenv("TIME_STEPS"))
 I = int(os.getenv("SIMULATIONS"))
 r = float(os.getenv("RISK_FREE_RATE"))
+
 
 excel_output = os.getenv("EXCEL_OUTPUT")
