@@ -205,12 +205,8 @@ def getPortfolio(self):
         'PnL': self.calcPNL(current_prices={})  #I'll need to pass real prices
     }
 
+#Add something to call this at the end of the month and reset
 def reset(self, current_prices, timestamp=None):
-    """
-    sells all held options at current market prices and resets the portfolio.
-    The idea behind this function is to let the algo buy as it wants for a week,
-    wait until the unsold/unexercised options expire, then get rid of everything and repeat, keeping any money it made 
-    """
     if timestamp is None:
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -222,4 +218,3 @@ def reset(self, current_prices, timestamp=None):
 
     #Clear unrealized PnL since all positions are sold
     self.unrealized_PNL = 0
-
