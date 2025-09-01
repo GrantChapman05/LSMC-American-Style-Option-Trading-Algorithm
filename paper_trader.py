@@ -117,7 +117,7 @@ class PaperTrader:
             prem_paid=position['prem_paid'],
             qty=qty,
             exp_date=position['exp_date'],
-            optn_typ=opn_type,
+            optn_typ=optn_type,
             underlying_price=underlying_price,
             total_cost=total_payoff,
             timestamp=timestamp
@@ -193,3 +193,4 @@ class PaperTrader:
                 self.sellOptn(optnID, market_price, qty, timestamp, underlying_price=self.positions[optnID]['underlying_price'])
 
         self.unrealized_PNL = 0.0
+
