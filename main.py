@@ -188,9 +188,6 @@ def main():
         else:
             print(f"{t} | SKIPPED - {res.get('reason')}")
 
-    # Optional: show remaining cash
-    portfolio = trader.getPortfolio()
-    print(f\"\"\"\\nCash: {portfolio['cash']:.2f}  |  Positions: {len(portfolio['positions'])}  |  PnL: {portfolio['PnL']}\"\"\")
-
 if __name__ == "__main__":
     main()
+
