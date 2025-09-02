@@ -2,7 +2,9 @@ import numpy as np
 import yfinance as yf
 import pandas as pd
 
-#Use GBM here for multiple future paths
+#HEAVILY COMMENTED TO DEMONSTRATE UNDERSTANDING
+
+#use GBM here for multiple future paths
 def genPricePaths(hist_sigma, spotPrice, rfr, matInYrs, steps, numOfPaths):
     dt = matInYrs / steps
     paths = np.zeros((numOfPaths, steps+1))
@@ -18,18 +20,18 @@ def genPricePaths(hist_sigma, spotPrice, rfr, matInYrs, steps, numOfPaths):
         paths[:, t] = paths[:, t-1] * np.exp(log_returns[:, t-1])
     return paths
 
-#Calc payoff for each sim done
+#calc payoff for each sim done
 def payoffCalc(St, Strike, option_type):
     if option_type == "Call":
         return np.maximum(St - Strike, 0)
     else:
         return np.maximum(Strike - St, 0)
 
-#Using risk free rate, apply time discounting to future cashflows
+#using rfr (2%), apply time discounting to future cashflows
 def discountCashFlow(values, r, dt, fromTimeIndex, ToTimeIndex):
     return values * np.exp(-r * dt * (fromTimeIndex - ToTimeIndex))
 
-#Checks value of option if not exercised at each step
+#checks val of option if not exercised at each step
 def fitRegression(SItem, futureVals):
     A = np.vstack([np.ones_like(SItem), SItem, SItem**2]).T
     beta = np.linalg.lstsq(A, futureVals, rcond=None)[0]
@@ -50,7 +52,6 @@ def calcOptnPrice(paths, K, r, T, optionType="Call"):
     cashflows = np.zeros(I)
     exerciseTimes = np.full(I, M, dtype=int)
 
-    #payoff at maturity
     final_payoff = payoffCalc(paths[:, -1], K, optionType)
     cashflows[:] = final_payoff
 
@@ -59,7 +60,7 @@ def calcOptnPrice(paths, K, r, T, optionType="Call"):
         S_t = paths[:, t]
         immediate = payoffCalc(S_t, K, optionType)
 
-        # Consider only ITM paths
+        #only ITM paths
         itemIndex = np.where(immediate > 0)[0]
         if itemIndex.size == 0:
             continue
@@ -79,5 +80,6 @@ def calcOptnPrice(paths, K, r, T, optionType="Call"):
         exerciseTimes[ex_now_idx] = t
 
     #discount all realized cashflows to time 0 and average
-    pv = discountCashFlow(cashflows, r, dt, from_time_idx=exerciseTimes, to_time_idx=0)
+    pv = discountCashFlow(cashflows, r, dt, exerciseTimes, 0)
     return float(np.mean(pv))
+
